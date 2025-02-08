@@ -1,4 +1,4 @@
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc update-repos test
 
 postgres:
 	docker run --name primarybank -p 5432:5432 -e POSTGRES_USER=root -e  POSTGRES_PASSWORD=primarybankcode -d postgres:16-alpine
@@ -20,3 +20,6 @@ sqlc:
 
 update-repos:
 	go mod tidy
+
+test:
+	go test -v -cover ./...
