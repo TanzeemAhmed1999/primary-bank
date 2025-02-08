@@ -97,3 +97,21 @@ func TestListAccounts(t *testing.T) {
 		require.NotEmpty(t, account)
 	}
 }
+
+func TestAddAccountBalanceAndGetAccountForUpdate(t *testing.T) {
+	account := createRandomAccount(t)
+
+	updateAmount := int64(50)
+	updatedAccount, err := testQueries.AddAccountBalance(context.Background(), AddAccountBalanceParams{
+		Amount: updateAmount,
+		ID:     account.ID,
+	})
+	require.NoError(t, err)
+	require.Equal(t, account.Balance+updateAmount, updatedAccount.Balance)
+
+	fetchedAccount, err := testQueries.GetAccountForUpdate(context.Background(), account.ID)
+	require.NoError(t, err)
+	require.Equal(t, updatedAccount.Balance, fetchedAccount.Balance)
+	require.Equal(t, updatedAccount.Owner, fetchedAccount.Owner)
+	require.Equal(t, updatedAccount.Currency, fetchedAccount.Currency)
+}
