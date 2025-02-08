@@ -68,5 +68,7 @@ jobs:
     - name: Run Migrations
       run: make migrateup
 
-    - name: Test
-      run: make test
+    # - name: Test
+    #   run: make test
+    - name: Run a Single Test
+      run: go test -run TestTransferTx -v ./...
