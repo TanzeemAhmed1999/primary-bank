@@ -46,6 +46,18 @@ jobs:
         done
         echo "PostgreSQL is ready!"
 
+    - name: Verify Database Readiness
+      run: |
+        for i in {1..10}; do
+          if PGPASSWORD=primarybankcode psql -h localhost -U root -d primarybank -c "SELECT 1"; then
+            echo "✅ Database is fully ready!"
+            break
+          fi
+          echo "⏳ Waiting for database to accept queries..."
+          sleep 3
+        done
+
+
 
     - name: Install golang-migrate
       run: |
