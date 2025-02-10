@@ -8,8 +8,6 @@ import (
 )
 
 func TestTransferTx(t *testing.T) {
-	// temporary skipping
-	t.Skip()
 	store := testStore
 	ctx := context.Background()
 
@@ -112,8 +110,6 @@ func TestTransferTx(t *testing.T) {
 }
 
 func TestTransferDeadlock(t *testing.T) {
-	// temporary skipping
-	t.Skip()
 	store := testStore
 	ctx := context.Background()
 

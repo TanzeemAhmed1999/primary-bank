@@ -2,8 +2,16 @@ package db
 
 import (
 	"context"
+	"errors"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+const (
+	maxRetries = 5
+	retryDelay = 100 * time.Millisecond
 )
 
 // Store provides all the functions to execute queries and transactions
@@ -24,47 +32,65 @@ func NewStore(db *pgxpool.Pool) *Store {
 // It created a transfer record, add account entries, and update accounts balance within a single db
 func (s *Store) TransferTx(ctx context.Context, args CreateTransferParams) (TransferTxResult, error) {
 	var retval TransferTxResult
+	var err error
 
-	err := s.execTx(ctx, func(queries *Queries) error {
-		var err error
+	for i := 0; i < maxRetries; i++ {
+		err = s.execTx(ctx, func(queries *Queries) error {
+			var txErr error
 
-		retval.Transfer, err = s.Queries.CreateTransfer(ctx, args)
-		if err != nil {
-			return err
-		}
+			retval.Transfer, txErr = queries.CreateTransfer(ctx, args)
+			if txErr != nil {
+				return txErr
+			}
 
-		retval.FromEntry, err = s.Queries.CreateEntry(ctx, CreateEntryParams{
-			AccountID: args.FromAccountID,
-			Amount:    -args.Amount,
+			retval.FromEntry, txErr = queries.CreateEntry(ctx, CreateEntryParams{
+				AccountID: args.FromAccountID,
+				Amount:    -args.Amount,
+			})
+			if txErr != nil {
+				return txErr
+			}
+
+			retval.ToEntry, txErr = queries.CreateEntry(ctx, CreateEntryParams{
+				AccountID: args.ToAccountID,
+				Amount:    args.Amount,
+			})
+			if txErr != nil {
+				return txErr
+			}
+
+			if args.FromAccountID < args.ToAccountID {
+				retval.FromAccount, retval.ToAccount, txErr = addMoney(ctx, queries, args.FromAccountID, args.ToAccountID, -args.Amount, args.Amount)
+			} else {
+				retval.FromAccount, retval.ToAccount, txErr = addMoney(ctx, queries, args.ToAccountID, args.FromAccountID, args.Amount, -args.Amount)
+			}
+			if txErr != nil {
+				return txErr
+			}
+
+			return nil
 		})
-		if err != nil {
-			return err
+
+		if err == nil {
+			return retval, nil
 		}
 
-		retval.ToEntry, err = s.Queries.CreateEntry(ctx, CreateEntryParams{
-			AccountID: args.ToAccountID,
-			Amount:    args.Amount,
-		})
-		if err != nil {
-			return err
+		if !isRetryableError(err) {
+			break
 		}
 
-		if args.FromAccountID < args.ToAccountID {
-			retval.FromAccount, retval.ToAccount, err = addMoney(ctx, queries, args.FromAccountID, args.ToAccountID, -args.Amount, args.Amount)
-		} else {
-			retval.FromAccount, retval.ToAccount, err = addMoney(ctx, queries, args.ToAccountID, args.FromAccountID, args.Amount, -args.Amount)
-		}
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		return retval, err
+		time.Sleep(retryDelay)
 	}
 
-	return retval, nil
+	return retval, err
+}
+
+func isRetryableError(err error) bool {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "40P01"
+	}
+	return false
 }
 
 func addMoney(
