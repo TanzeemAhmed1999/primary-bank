@@ -16,7 +16,7 @@ func createRandomTransfer(t *testing.T, fromAccount, toAccount Account) Transfer
 		Amount:        commonutils.RandomMoney(),
 	}
 
-	transfer, err := testQueries.CreateTransfer(context.Background(), args)
+	transfer, err := testStore.CreateTransfer(context.Background(), args)
 	require.NoError(t, err)
 	require.NotEmpty(t, transfer)
 	require.Equal(t, args.FromAccountID, transfer.FromAccountID)
@@ -37,14 +37,14 @@ func TestGetTransfer(t *testing.T) {
 	fromAccount := createRandomAccount(t)
 	toAccount := createRandomAccount(t)
 	transfer1 := createRandomTransfer(t, fromAccount, toAccount)
-	transfer2, err := testQueries.GetTransfer(context.Background(), transfer1.ID)
+	transfer2, err := testStore.GetTransfer(context.Background(), transfer1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, transfer2)
 	require.Equal(t, transfer1.ID, transfer2.ID)
 	require.Equal(t, transfer1.FromAccountID, transfer2.FromAccountID)
 	require.Equal(t, transfer1.ToAccountID, transfer2.ToAccountID)
 	require.Equal(t, transfer1.Amount, transfer2.Amount)
-	require.WithinDuration(t, transfer1.CreatedAt.Time, transfer2.CreatedAt.Time, time.Second)
+	require.WithinDuration(t, transfer1.CreatedAt, transfer2.CreatedAt, time.Second)
 }
 
 func TestDeleteTransfer(t *testing.T) {
@@ -52,10 +52,10 @@ func TestDeleteTransfer(t *testing.T) {
 	toAccount := createRandomAccount(t)
 	transfer := createRandomTransfer(t, fromAccount, toAccount)
 
-	err := testQueries.DeleteTransfer(context.Background(), transfer.ID)
+	err := testStore.DeleteTransfer(context.Background(), transfer.ID)
 	require.NoError(t, err)
 
-	deletedTransfer, err := testQueries.GetTransfer(context.Background(), transfer.ID)
+	deletedTransfer, err := testStore.GetTransfer(context.Background(), transfer.ID)
 	require.Error(t, err)
 	require.Empty(t, deletedTransfer)
 }
@@ -72,7 +72,7 @@ func TestListTransfers(t *testing.T) {
 		Offset: 5,
 	}
 
-	transfers, err := testQueries.ListTransfers(context.Background(), args)
+	transfers, err := testStore.ListTransfers(context.Background(), args)
 	require.NoError(t, err)
 	require.Len(t, transfers, 5)
 

@@ -2,9 +2,7 @@ package db
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -20,25 +18,6 @@ func NewStore(db *pgxpool.Pool) *Store {
 		db:      db,
 		Queries: New(db),
 	}
-}
-
-// execTx executes a func in a db transaction
-func (s *Store) execTx(ctx context.Context, fn func(queries *Queries) error) error {
-	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return err
-	}
-
-	q := New(tx)
-	err = fn(q)
-	if err != nil {
-		if tErr := tx.Rollback(ctx); tErr != nil {
-			return fmt.Errorf("tx err: %v, rb err: %v", err, tErr)
-		}
-		return err
-	}
-
-	return tx.Commit(ctx)
 }
 
 // TransferTx performs a money transfer from one account to other.
@@ -70,18 +49,11 @@ func (s *Store) TransferTx(ctx context.Context, args CreateTransferParams) (Tran
 			return err
 		}
 
-		retval.FromAccount, err = s.Queries.AddAccountBalance(ctx, AddAccountBalanceParams{
-			ID:     args.FromAccountID,
-			Amount: -args.Amount,
-		})
-		if err != nil {
-			return err
+		if args.FromAccountID < args.ToAccountID {
+			retval.FromAccount, retval.ToAccount, err = addMoney(ctx, queries, args.FromAccountID, args.ToAccountID, -args.Amount, args.Amount)
+		} else {
+			retval.FromAccount, retval.ToAccount, err = addMoney(ctx, queries, args.ToAccountID, args.FromAccountID, args.Amount, -args.Amount)
 		}
-
-		retval.ToAccount, err = s.Queries.AddAccountBalance(ctx, AddAccountBalanceParams{
-			ID:     args.ToAccountID,
-			Amount: args.Amount,
-		})
 		if err != nil {
 			return err
 		}
@@ -93,4 +65,31 @@ func (s *Store) TransferTx(ctx context.Context, args CreateTransferParams) (Tran
 	}
 
 	return retval, nil
+}
+
+func addMoney(
+	ctx context.Context,
+	q *Queries,
+	accountID1 int64,
+	accountID2 int64,
+	amount1 int64,
+	amount2 int64,
+) (acc1 Account, acc2 Account, err error) {
+	acc1, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+		ID:     accountID1,
+		Amount: amount1,
+	})
+	if err != nil {
+		return
+	}
+
+	acc2, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+		ID:     accountID2,
+		Amount: amount2,
+	})
+	if err != nil {
+		return
+	}
+
+	return acc1, acc2, err
 }

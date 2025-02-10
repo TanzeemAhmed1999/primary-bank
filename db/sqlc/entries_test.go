@@ -15,7 +15,7 @@ func createRandomEntry(t *testing.T, account Account) Entry {
 		Amount:    commonutils.RandomMoney(),
 	}
 
-	entry, err := testQueries.CreateEntry(context.Background(), args)
+	entry, err := testStore.CreateEntry(context.Background(), args)
 	require.NoError(t, err)
 	require.NotEmpty(t, entry)
 	require.Equal(t, args.AccountID, entry.AccountID)
@@ -33,23 +33,23 @@ func TestCreateEntry(t *testing.T) {
 func TestGetEntry(t *testing.T) {
 	account := createRandomAccount(t)
 	entry1 := createRandomEntry(t, account)
-	entry2, err := testQueries.GetEntry(context.Background(), entry1.ID)
+	entry2, err := testStore.GetEntry(context.Background(), entry1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, entry2)
 	require.Equal(t, entry1.ID, entry2.ID)
 	require.Equal(t, entry1.AccountID, entry2.AccountID)
 	require.Equal(t, entry1.Amount, entry2.Amount)
-	require.WithinDuration(t, entry1.CreatedAt.Time, entry2.CreatedAt.Time, time.Second)
+	require.WithinDuration(t, entry1.CreatedAt, entry2.CreatedAt, time.Second)
 }
 
 func TestDeleteEntry(t *testing.T) {
 	account := createRandomAccount(t)
 	entry := createRandomEntry(t, account)
 
-	err := testQueries.DeleteEntry(context.Background(), entry.ID)
+	err := testStore.DeleteEntry(context.Background(), entry.ID)
 	require.NoError(t, err)
 
-	deletedEntry, err := testQueries.GetEntry(context.Background(), entry.ID)
+	deletedEntry, err := testStore.GetEntry(context.Background(), entry.ID)
 	require.Error(t, err)
 	require.Empty(t, deletedEntry)
 }
@@ -65,7 +65,7 @@ func TestListEntries(t *testing.T) {
 		Offset: 5,
 	}
 
-	entries, err := testQueries.ListEntries(context.Background(), args)
+	entries, err := testStore.ListEntries(context.Background(), args)
 	require.NoError(t, err)
 	require.Len(t, entries, 5)
 
