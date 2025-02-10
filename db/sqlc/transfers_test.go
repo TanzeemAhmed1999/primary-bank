@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	commonutils "github.com/primarybank/common-utils"
+	commonutils "github.com/primarybank/common/utils"
 	"github.com/stretchr/testify/require"
 )
 
