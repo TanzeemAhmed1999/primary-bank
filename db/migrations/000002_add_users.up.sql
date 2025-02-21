@@ -1,10 +1,10 @@
 CREATE TABLE users (
-  "username" varchar PRIMARY KEY,
-  "password" varchar NOT NULL,
-  "full_name" varchar NOT NULL,
-  "email" varchar UNIQUE NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now()),
-  "updated_at" timestamptz NOT NULL DEFAULT (now())
+  username varchar PRIMARY KEY,
+  password varchar NOT NULL,
+  full_name varchar NOT NULL,
+  email varchar UNIQUE NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT (now()),
+  updated_at timestamptz NOT NULL DEFAULT (now())
 );
 
 ALTER TABLE accounts
