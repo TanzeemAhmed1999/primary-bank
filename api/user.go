@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	commonutils "github.com/primarybank/common/utils"
@@ -106,4 +107,35 @@ func (server *Server) UpdateUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, user)
+}
+
+func (s *Server) LoginUser(ctx *gin.Context) {
+	var req LoginRequest
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	user, err := s.store.GetUser(ctx, req.Username)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	if err := commonutils.CheckPassword(req.Password, user.Password); err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	expirationTime := s.config.AccessTokenDuration
+	token, err := s.tokenMaker.CreateToken(user.Username, expirationTime)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create token"})
+	}
+
+	ctx.JSON(http.StatusOK, LoginUserResponse{
+		AccessToken: token,
+		ExpiresIn:   time.Now().Add(expirationTime).Unix(),
+	})
 }

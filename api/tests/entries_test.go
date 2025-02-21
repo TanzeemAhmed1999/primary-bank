@@ -34,7 +34,7 @@ func TestCreateEntry(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 	testCases := []struct {
 		name         string
 		requestBody  api.CreateEntryRequest
@@ -84,7 +84,7 @@ func TestGetEntry(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 	testCases := []struct {
 		name         string
 		entryID      string
@@ -128,7 +128,7 @@ func TestDeleteEntry(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 	testCases := []struct {
 		name         string
 		entryID      string
@@ -171,7 +171,7 @@ func TestListEntries(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 	testCases := []struct {
 		name         string
 		queryParams  api.ListEntriesRequest

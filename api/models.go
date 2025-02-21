@@ -76,3 +76,13 @@ type UpdateUserRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password,omitempty"`
 }
+
+type LoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginUserResponse struct {
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int64  `json:"expires_in"`
+}

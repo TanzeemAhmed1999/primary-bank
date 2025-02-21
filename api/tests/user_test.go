@@ -39,7 +39,7 @@ func TestCreateUser(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 
 	user := createRandomUser(t)
 
@@ -116,7 +116,7 @@ func TestUpdateUser(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 
 	user := createRandomUser(t)
 
@@ -259,6 +259,87 @@ func TestUpdateUser(t *testing.T) {
 
 			server.UpdateUser(c)
 
+			require.Equal(t, tc.expectedCode, recorder.Code)
+		})
+	}
+}
+
+func TestLoginUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	store := mocks.NewMockStore(ctrl)
+	server := newTestServer(t, store)
+
+	user := createRandomUser(t)
+	password := commonutils.RandomString(10)
+	hashedPassword, err := commonutils.HashPassword(password)
+	require.NoError(t, err)
+	user.Password = hashedPassword
+
+	testCases := []struct {
+		name         string
+		requestBody  api.LoginRequest
+		buildStubs   func()
+		expectedCode int
+	}{
+		{
+			name: "ValidLogin",
+			requestBody: api.LoginRequest{
+				Username: user.Username,
+				Password: password,
+			},
+			buildStubs: func() {
+				store.EXPECT().
+					GetUser(gomock.Any(), gomock.Any()).
+					Return(user, nil).
+					Times(1)
+			},
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "UserNotFound",
+			requestBody: api.LoginRequest{
+				Username: user.Username,
+				Password: password,
+			},
+			buildStubs: func() {
+				store.EXPECT().
+					GetUser(gomock.Any(), gomock.Any()).
+					Return(db.User{}, sql.ErrNoRows).
+					Times(1)
+			},
+			expectedCode: http.StatusUnauthorized,
+		},
+		{
+			name: "InvalidPassword",
+			requestBody: api.LoginRequest{
+				Username: user.Username,
+				Password: "wrongpassword",
+			},
+			buildStubs: func() {
+				store.EXPECT().
+					GetUser(gomock.Any(), gomock.Any()).
+					Return(user, nil).
+					Times(1)
+			},
+			expectedCode: http.StatusUnauthorized,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.buildStubs()
+
+			recorder := httptest.NewRecorder()
+			c, _ := gin.CreateTestContext(recorder)
+
+			body, _ := json.Marshal(tc.requestBody)
+			req := httptest.NewRequest(http.MethodPost, "/user/login", bytes.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			c.Request = req
+
+			server.LoginUser(c)
 			require.Equal(t, tc.expectedCode, recorder.Code)
 		})
 	}

@@ -21,7 +21,7 @@ import (
 
 func CreateRandomAccount(t *testing.T) *db.Account {
 	return &db.Account{
-		ID:        commonutils.RandomMoney(),
+		ID:        commonutils.RandomInt(1, 10000),
 		Owner:     commonutils.RandomOwner(),
 		Balance:   commonutils.RandomMoney(),
 		Currency:  commonutils.RandomCurrency(),
@@ -34,7 +34,7 @@ func TestCreateAccount(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 
 	account := CreateRandomAccount(t)
 	testCases := []struct {
@@ -92,7 +92,7 @@ func TestGetAccount(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 
 	account := CreateRandomAccount(t)
 	testCases := []struct {
@@ -143,7 +143,7 @@ func TestDeleteAccount(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 
 	account := CreateRandomAccount(t)
 	testCases := []struct {
@@ -191,7 +191,7 @@ func TestListAccounts(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 
 	testCases := []struct {
 		name         string
@@ -237,7 +237,7 @@ func TestUpdateAccount(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 
 	account := CreateRandomAccount(t)
 	testCases := []struct {

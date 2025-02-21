@@ -1,22 +1,40 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"github.com/primarybank/config"
 	db "github.com/primarybank/db/sqlc"
+	"github.com/primarybank/token"
 )
 
 // Server serves all http request for banking service
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	store      db.Store
+	router     *gin.Engine
+	tokenMaker token.Maker
+	config     config.Config
 }
 
-func NewServer(store db.Store) *Server {
-	server := &Server{
-		store: store,
+func NewServer(cfg config.Config, store db.Store) (*Server, error) {
+	tokenMaker, err := token.NewJWTMaker(cfg.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
-	router := gin.Default()
 
+	server := &Server{
+		store:      store,
+		tokenMaker: tokenMaker,
+		config:     cfg,
+	}
+	server.setUpRouter()
+
+	return server, nil
+}
+
+func (server *Server) setUpRouter() {
+	router := gin.Default()
 	// add routes to the routes
 	// Account routes
 	router.GET("/account/:id", server.GetAccount)
@@ -38,12 +56,12 @@ func NewServer(store db.Store) *Server {
 	router.DELETE("/entry/:id", server.DeleteEntry)
 
 	// User routes
-	router.POST("/users", server.CreateUser)
-	router.GET("/users/:username", server.GetUser)
-	router.PUT("/users/:username", server.UpdateUser)
+	router.POST("/user", server.CreateUser)
+	router.GET("/user/:username", server.GetUser)
+	router.PUT("/user/:username", server.UpdateUser)
+	router.POST("/user/login", server.LoginUser)
 
 	server.router = router
-	return server
 }
 
 func (s *Server) Start(addr string) error {

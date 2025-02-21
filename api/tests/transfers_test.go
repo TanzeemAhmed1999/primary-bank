@@ -31,7 +31,7 @@ func TestCreateTransfer(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 	transfer := CreateRandomTransfer()
 	testCases := []struct {
 		name         string
@@ -84,7 +84,7 @@ func TestGetTransfer(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 	transfer := CreateRandomTransfer()
 	testCases := []struct {
 		name         string
@@ -120,7 +120,7 @@ func TestDeleteTransfer(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 	testCases := []struct {
 		name         string
 		transferID   string
@@ -155,7 +155,7 @@ func TestListTransfers(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mocks.NewMockStore(ctrl)
-	server := api.NewServer(store)
+	server := newTestServer(t, store)
 	testCases := []struct {
 		name         string
 		queryParams  string
