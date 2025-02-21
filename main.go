@@ -6,17 +6,17 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/primarybank/api"
+	"github.com/primarybank/config"
 	db "github.com/primarybank/db/sqlc"
 )
 
-const (
-	dbDriver   = "postgres"
-	dbSource   = "postgresql://root:primarybankcode@localhost:5432/primarybank?sslmode=disable"
-	serverAddr = "0.0.0.0:8080"
-)
-
 func main() {
-	conn, err := pgxpool.New(context.Background(), dbSource)
+	cfg, err := config.Load(".")
+	if err != nil {
+		log.Fatal("cannot load config: ", err)
+	}
+
+	conn, err := pgxpool.New(context.Background(), cfg.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db: ", err)
 	}
@@ -24,7 +24,7 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
-	if err = server.Start(serverAddr); err != nil {
+	if err = server.Start(cfg.ServerAddr); err != nil {
 		log.Fatal("cannot start server: ", err)
 	}
 }

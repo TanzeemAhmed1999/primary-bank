@@ -7,18 +7,18 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-)
-
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://root:primarybankcode@localhost:5432/primarybank?sslmode=disable"
+	"github.com/primarybank/config"
 )
 
 var testStore *Store
 
 func TestMain(m *testing.M) {
-	var err error
-	testDB, err := pgxpool.New(context.Background(), dbSource)
+	cfg, err := config.Load("../..")
+	if err != nil {
+		log.Fatal("cannot load config: ", err)
+	}
+
+	testDB, err := pgxpool.New(context.Background(), cfg.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db: ", err)
 	}
