@@ -9,6 +9,7 @@ import (
 	db "github.com/primarybank/db/sqlc"
 )
 
+// TODO: add a validation to check both FromAccount and ToAccount currency matches
 func (s *Server) CreateTransfer(ctx *gin.Context) {
 	var req CreateTransferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
