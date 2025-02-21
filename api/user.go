@@ -128,8 +128,8 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	expirationTime := s.config.AccessTokenDuration
-	token, err := s.tokenMaker.CreateToken(user.Username, expirationTime)
+	expirationTime := s.Config.AccessTokenDuration
+	token, err := s.TokenMaker.CreateToken(user.Username, expirationTime)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create token"})
 	}

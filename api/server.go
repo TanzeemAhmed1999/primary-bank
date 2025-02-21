@@ -12,9 +12,9 @@ import (
 // Server serves all http request for banking service
 type Server struct {
 	store      db.Store
-	router     *gin.Engine
-	tokenMaker token.Maker
-	config     config.Config
+	Router     *gin.Engine
+	TokenMaker token.Maker
+	Config     config.Config
 }
 
 func NewServer(cfg config.Config, store db.Store) (*Server, error) {
@@ -25,8 +25,8 @@ func NewServer(cfg config.Config, store db.Store) (*Server, error) {
 
 	server := &Server{
 		store:      store,
-		tokenMaker: tokenMaker,
-		config:     cfg,
+		TokenMaker: tokenMaker,
+		Config:     cfg,
 	}
 	server.setUpRouter()
 
@@ -36,36 +36,40 @@ func NewServer(cfg config.Config, store db.Store) (*Server, error) {
 func (server *Server) setUpRouter() {
 	router := gin.Default()
 	// add routes to the routes
-	// Account routes
-	router.GET("/account/:id", server.GetAccount)
-	router.GET("/accounts", server.ListAccounts)
-	router.POST("/account", server.CreateAccount)
-	router.PATCH("/account", server.UpdateAccount)
-	router.DELETE("/account/:id", server.DeleteAccount)
-
-	// Transfer routes
-	router.GET("/transfer/:id", server.GetTransfer)
-	router.GET("/transfers", server.ListTransfers)
-	router.POST("/transfer", server.CreateTransfer)
-	router.DELETE("/transfer/:id", server.DeleteTransfer)
-
-	// Entry routes
-	router.GET("/entry/:id", server.GetEntry)
-	router.GET("/entries", server.ListEntries)
-	router.POST("/entry", server.CreateEntry)
-	router.DELETE("/entry/:id", server.DeleteEntry)
-
 	// User routes
 	router.POST("/user", server.CreateUser)
-	router.GET("/user/:username", server.GetUser)
-	router.PUT("/user/:username", server.UpdateUser)
 	router.POST("/user/login", server.LoginUser)
 
-	server.router = router
+	authRoutes := router.Group("/").Use(AuthMiddleWare(server.TokenMaker))
+
+	// routes require auth
+	authRoutes.GET("/user/:username", server.GetUser)
+	authRoutes.PUT("/user/:username", server.UpdateUser)
+
+	// Account routes
+	authRoutes.GET("/account/:id", server.GetAccount)
+	authRoutes.GET("/accounts", server.ListAccounts)
+	authRoutes.POST("/account", server.CreateAccount)
+	authRoutes.PATCH("/account", server.UpdateAccount)
+	authRoutes.DELETE("/account/:id", server.DeleteAccount)
+
+	// Transfer routes
+	authRoutes.GET("/transfer/:id", server.GetTransfer)
+	authRoutes.GET("/transfers", server.ListTransfers)
+	authRoutes.POST("/transfer", server.CreateTransfer)
+	authRoutes.DELETE("/transfer/:id", server.DeleteTransfer)
+
+	// Entry routes
+	authRoutes.GET("/entry/:id", server.GetEntry)
+	authRoutes.GET("/entries", server.ListEntries)
+	authRoutes.POST("/entry", server.CreateEntry)
+	authRoutes.DELETE("/entry/:id", server.DeleteEntry)
+
+	server.Router = router
 }
 
 func (s *Server) Start(addr string) error {
-	return s.router.Run(addr)
+	return s.Router.Run(addr)
 }
 
 func errResp(err error) gin.H {

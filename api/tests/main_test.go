@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/primarybank/api"
 	commonutils "github.com/primarybank/common/utils"
 	"github.com/primarybank/config"
@@ -19,6 +20,8 @@ func newTestServer(t *testing.T, store db.Store) *api.Server {
 
 	server, err := api.NewServer(cfg, store)
 	require.NoError(t, err)
+
+	gin.SetMode(gin.TestMode)
 
 	return server
 }
