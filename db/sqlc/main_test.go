@@ -10,7 +10,7 @@ import (
 	"github.com/primarybank/config"
 )
 
-var testStore *Store
+var testStore Store
 
 func TestMain(m *testing.M) {
 	cfg, err := config.Load("../..")

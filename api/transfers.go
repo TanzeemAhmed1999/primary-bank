@@ -9,8 +9,8 @@ import (
 	db "github.com/primarybank/db/sqlc"
 )
 
-func (s *Server) createTransfer(ctx *gin.Context) {
-	var req createTransferRequest
+func (s *Server) CreateTransfer(ctx *gin.Context) {
+	var req CreateTransferRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -31,8 +31,8 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, transfer)
 }
 
-func (s *Server) getTransfer(ctx *gin.Context) {
-	var req getTransferRequest
+func (s *Server) GetTransfer(ctx *gin.Context) {
+	var req GetTransferRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -51,8 +51,8 @@ func (s *Server) getTransfer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, transfer)
 }
 
-func (s *Server) deleteTransfer(ctx *gin.Context) {
-	var req deleteTransferRequest
+func (s *Server) DeleteTransfer(ctx *gin.Context) {
+	var req DeleteTransferRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -71,8 +71,8 @@ func (s *Server) deleteTransfer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "transfer deleted"})
 }
 
-func (s *Server) listTransfers(ctx *gin.Context) {
-	var req listTransfersRequest
+func (s *Server) ListTransfers(ctx *gin.Context) {
+	var req ListTransfersRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return

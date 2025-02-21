@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomTransfer(t *testing.T, fromAccount, toAccount Account) Transfer {
+func CreateRandomTransfer(t *testing.T, fromAccount, toAccount Account) Transfer {
 	args := CreateTransferParams{
 		FromAccountID: fromAccount.ID,
 		ToAccountID:   toAccount.ID,
@@ -28,15 +28,15 @@ func createRandomTransfer(t *testing.T, fromAccount, toAccount Account) Transfer
 }
 
 func TestCreateTransfer(t *testing.T) {
-	fromAccount := createRandomAccount(t)
-	toAccount := createRandomAccount(t)
-	createRandomTransfer(t, fromAccount, toAccount)
+	fromAccount := CreateRandomAccount(t)
+	toAccount := CreateRandomAccount(t)
+	CreateRandomTransfer(t, fromAccount, toAccount)
 }
 
 func TestGetTransfer(t *testing.T) {
-	fromAccount := createRandomAccount(t)
-	toAccount := createRandomAccount(t)
-	transfer1 := createRandomTransfer(t, fromAccount, toAccount)
+	fromAccount := CreateRandomAccount(t)
+	toAccount := CreateRandomAccount(t)
+	transfer1 := CreateRandomTransfer(t, fromAccount, toAccount)
 	transfer2, err := testStore.GetTransfer(context.Background(), transfer1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, transfer2)
@@ -48,9 +48,9 @@ func TestGetTransfer(t *testing.T) {
 }
 
 func TestDeleteTransfer(t *testing.T) {
-	fromAccount := createRandomAccount(t)
-	toAccount := createRandomAccount(t)
-	transfer := createRandomTransfer(t, fromAccount, toAccount)
+	fromAccount := CreateRandomAccount(t)
+	toAccount := CreateRandomAccount(t)
+	transfer := CreateRandomTransfer(t, fromAccount, toAccount)
 
 	err := testStore.DeleteTransfer(context.Background(), transfer.ID)
 	require.NoError(t, err)
@@ -61,10 +61,10 @@ func TestDeleteTransfer(t *testing.T) {
 }
 
 func TestListTransfers(t *testing.T) {
-	fromAccount := createRandomAccount(t)
-	toAccount := createRandomAccount(t)
+	fromAccount := CreateRandomAccount(t)
+	toAccount := CreateRandomAccount(t)
 	for i := 0; i < 10; i++ {
-		createRandomTransfer(t, fromAccount, toAccount)
+		CreateRandomTransfer(t, fromAccount, toAccount)
 	}
 
 	args := ListTransfersParams{

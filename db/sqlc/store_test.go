@@ -11,8 +11,8 @@ func TestTransferTx(t *testing.T) {
 	store := testStore
 	ctx := context.Background()
 
-	account1 := createRandomAccount(t)
-	account2 := createRandomAccount(t)
+	account1 := CreateRandomAccount(t)
+	account2 := CreateRandomAccount(t)
 
 	// run n concurrent transfer transactions
 	n := int64(5)
@@ -113,8 +113,8 @@ func TestTransferDeadlock(t *testing.T) {
 	store := testStore
 	ctx := context.Background()
 
-	account1 := createRandomAccount(t)
-	account2 := createRandomAccount(t)
+	account1 := CreateRandomAccount(t)
+	account2 := CreateRandomAccount(t)
 
 	// run n concurrent transfer transactions
 	n := int64(10)

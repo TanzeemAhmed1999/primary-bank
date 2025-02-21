@@ -1,4 +1,4 @@
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc update-repos test server
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc mockgen update-repos test server
 
 postgres:
 	docker run --name primarybank -p 5432:5432 -e POSTGRES_USER=root -e  POSTGRES_PASSWORD=primarybankcode -d postgres:16-alpine
@@ -17,6 +17,9 @@ migratedown:
 
 sqlc:
 	sqlc generate
+
+mockgen:
+	mockgen -destination=db/mocks/store.go -package=mocks github.com/primarybank/db/sqlc Store
 
 update-repos:
 	go mod tidy

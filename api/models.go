@@ -1,64 +1,64 @@
 package api
 
 // Account
-type createAccountRequest struct {
+type CreateAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,oneof=USD EUR RUP"`
 }
 
-type getAccountRequest struct {
+type GetAccountRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
-type listAccountsRequest struct {
+type ListAccountsRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-type updateAccountRequest struct {
+type UpdateAccountRequest struct {
 	ID      int64 `json:"id" binding:"required,min=1"`
 	Balance int64 `json:"balance" binding:"required,min=0"`
 }
 
-type deleteAccountRequest struct {
+type DeleteAccountRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 // Transfer
-type createTransferRequest struct {
+type CreateTransferRequest struct {
 	FromAccountID int64 `json:"from_account_id" binding:"required,min=1"`
 	ToAccountID   int64 `json:"to_account_id" binding:"required,min=1"`
 	Amount        int64 `json:"amount" binding:"required,gt=0"`
 }
 
-type getTransferRequest struct {
+type GetTransferRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
-type listTransfersRequest struct {
+type ListTransfersRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-type deleteTransferRequest struct {
+type DeleteTransferRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 // Entries
-type createEntryRequest struct {
+type CreateEntryRequest struct {
 	AccountID int64 `json:"account_id" binding:"required,min=1"`
 	Amount    int64 `json:"amount" binding:"required"`
 }
 
-type getEntryRequest struct {
+type GetEntryRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
-type listEntriesRequest struct {
+type ListEntriesRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
-type deleteEntryRequest struct {
+type DeleteEntryRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }

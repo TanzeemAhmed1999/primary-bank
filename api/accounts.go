@@ -9,8 +9,8 @@ import (
 	db "github.com/primarybank/db/sqlc"
 )
 
-func (s *Server) createAccount(ctx *gin.Context) {
-	var req createAccountRequest
+func (s *Server) CreateAccount(ctx *gin.Context) {
+	var req CreateAccountRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -31,8 +31,8 @@ func (s *Server) createAccount(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, account)
 }
 
-func (s *Server) getAccount(ctx *gin.Context) {
-	var req getAccountRequest
+func (s *Server) GetAccount(ctx *gin.Context) {
+	var req GetAccountRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -50,8 +50,8 @@ func (s *Server) getAccount(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, account)
 }
 
-func (s *Server) listAccounts(ctx *gin.Context) {
-	var req listAccountsRequest
+func (s *Server) ListAccounts(ctx *gin.Context) {
+	var req ListAccountsRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -74,8 +74,8 @@ func (s *Server) listAccounts(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, account)
 }
 
-func (s *Server) updateAccount(ctx *gin.Context) {
-	var req updateAccountRequest
+func (s *Server) UpdateAccount(ctx *gin.Context) {
+	var req UpdateAccountRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -100,8 +100,8 @@ func (s *Server) updateAccount(ctx *gin.Context) {
 }
 
 // We should ideally soft delete account
-func (s *Server) deleteAccount(ctx *gin.Context) {
-	var req deleteAccountRequest
+func (s *Server) DeleteAccount(ctx *gin.Context) {
+	var req DeleteAccountRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return

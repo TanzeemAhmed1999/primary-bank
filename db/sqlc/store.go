@@ -15,14 +15,20 @@ const (
 )
 
 // Store provides all the functions to execute queries and transactions
-type Store struct {
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, args CreateTransferParams) (TransferTxResult, error)
+}
+
+// Store provides all the functions to execute SQL queries and transactions
+type SQLStore struct {
 	*Queries
 	db *pgxpool.Pool
 }
 
 // NewStore creates a new Store
-func NewStore(db *pgxpool.Pool) *Store {
-	return &Store{
+func NewStore(db *pgxpool.Pool) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
@@ -30,7 +36,7 @@ func NewStore(db *pgxpool.Pool) *Store {
 
 // TransferTx performs a money transfer from one account to other.
 // It created a transfer record, add account entries, and update accounts balance within a single db
-func (s *Store) TransferTx(ctx context.Context, args CreateTransferParams) (TransferTxResult, error) {
+func (s *SQLStore) TransferTx(ctx context.Context, args CreateTransferParams) (TransferTxResult, error) {
 	var retval TransferTxResult
 	var err error
 

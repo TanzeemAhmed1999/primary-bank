@@ -7,11 +7,11 @@ import (
 
 // Server serves all http request for banking service
 type Server struct {
-	store  *db.Store
+	store  db.Store
 	router *gin.Engine
 }
 
-func NewServer(store *db.Store) *Server {
+func NewServer(store db.Store) *Server {
 	server := &Server{
 		store: store,
 	}
@@ -19,23 +19,23 @@ func NewServer(store *db.Store) *Server {
 
 	// add routes to the routes
 	// Account routes
-	router.GET("/account/:id", server.getAccount)
-	router.GET("/accounts", server.listAccounts)
-	router.POST("/account", server.createAccount)
-	router.PATCH("/account", server.updateAccount)
-	router.DELETE("/account/:id", server.deleteAccount)
+	router.GET("/account/:id", server.GetAccount)
+	router.GET("/accounts", server.ListAccounts)
+	router.POST("/account", server.CreateAccount)
+	router.PATCH("/account", server.UpdateAccount)
+	router.DELETE("/account/:id", server.DeleteAccount)
 
 	// Transfer routes
-	router.GET("/transfer/:id", server.getTransfer)
-	router.GET("/transfers", server.listTransfers)
-	router.POST("/transfer", server.createTransfer)
-	router.DELETE("/transfer/:id", server.deleteTransfer)
+	router.GET("/transfer/:id", server.GetTransfer)
+	router.GET("/transfers", server.ListTransfers)
+	router.POST("/transfer", server.CreateTransfer)
+	router.DELETE("/transfer/:id", server.DeleteTransfer)
 
 	// Entry routes
-	router.GET("/entry/:id", server.getEntry)
-	router.GET("/entries", server.listEntries)
-	router.POST("/entry", server.createEntry)
-	router.DELETE("/entry/:id", server.deleteEntry)
+	router.GET("/entry/:id", server.GetEntry)
+	router.GET("/entries", server.ListEntries)
+	router.POST("/entry", server.CreateEntry)
+	router.DELETE("/entry/:id", server.DeleteEntry)
 
 	server.router = router
 	return server

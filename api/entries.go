@@ -9,8 +9,8 @@ import (
 	db "github.com/primarybank/db/sqlc"
 )
 
-func (s *Server) createEntry(ctx *gin.Context) {
-	var req createEntryRequest
+func (s *Server) CreateEntry(ctx *gin.Context) {
+	var req CreateEntryRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -30,8 +30,8 @@ func (s *Server) createEntry(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, entry)
 }
 
-func (s *Server) getEntry(ctx *gin.Context) {
-	var req getEntryRequest
+func (s *Server) GetEntry(ctx *gin.Context) {
+	var req GetEntryRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -50,8 +50,8 @@ func (s *Server) getEntry(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, entry)
 }
 
-func (s *Server) deleteEntry(ctx *gin.Context) {
-	var req deleteEntryRequest
+func (s *Server) DeleteEntry(ctx *gin.Context) {
+	var req DeleteEntryRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
@@ -70,8 +70,8 @@ func (s *Server) deleteEntry(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "entry deleted"})
 }
 
-func (s *Server) listEntries(ctx *gin.Context) {
-	var req listEntriesRequest
+func (s *Server) ListEntries(ctx *gin.Context) {
+	var req ListEntriesRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errResp(err))
 		return
