@@ -61,7 +61,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET full_name = $2, email = $3, updated_at = now()
+SET full_name = $2, email = $3, password = COALESCE($4, password), updated_at = now()
 WHERE username = $1
 RETURNING username, password, full_name, email, created_at, updated_at
 `
@@ -70,10 +70,16 @@ type UpdateUserParams struct {
 	Username string `json:"username"`
 	FullName string `json:"full_name"`
 	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUser, arg.Username, arg.FullName, arg.Email)
+	row := q.db.QueryRow(ctx, updateUser,
+		arg.Username,
+		arg.FullName,
+		arg.Email,
+		arg.Password,
+	)
 	var i User
 	err := row.Scan(
 		&i.Username,

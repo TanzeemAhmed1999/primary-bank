@@ -8,6 +8,6 @@ RETURNING *;
 
 -- name: UpdateUser :one
 UPDATE users
-SET full_name = $2, email = $3, updated_at = now()
+SET full_name = $2, email = $3, password = COALESCE($4, password), updated_at = now()
 WHERE username = $1
-RETURNING *;
+RETURNING username, password, full_name, email, created_at, updated_at;

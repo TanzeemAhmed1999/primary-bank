@@ -23,7 +23,7 @@ func CreateRandomAccount(t *testing.T) Account {
 	require.NotEmpty(t, account)
 
 	require.Equal(t, args.Owner, account.Owner)
-	require.NotEmpty(t, args.Balance, account.Balance)
+	require.Equal(t, args.Balance, account.Balance)
 	require.NotEmpty(t, args.Currency, account.Currency)
 
 	require.NotZero(t, account.ID)

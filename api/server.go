@@ -37,6 +37,11 @@ func NewServer(store db.Store) *Server {
 	router.POST("/entry", server.CreateEntry)
 	router.DELETE("/entry/:id", server.DeleteEntry)
 
+	// User routes
+	router.POST("/users", server.CreateUser)
+	router.GET("/users/:username", server.GetUser)
+	router.PUT("/users/:username", server.UpdateUser)
+
 	server.router = router
 	return server
 }
